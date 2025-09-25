@@ -4,6 +4,10 @@ import fs from "fs";
 import path from "path";
 import { fileURLToPath } from "url";
 import { connectToServer } from "./db/conn.mjs";
+import postsRouter from "./routes/post.mjs";
+import usersRouter from "./routes/user.mjs";
+
+
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -13,6 +17,11 @@ app.use(express.json());
 
 // Simple test route
 app.get("/health", (req, res) => res.json({ status: "ok" }));
+
+app.use("/api/posts", postsRouter);
+app.use("/api/users", usersRouter);
+
+
 
 async function start() {
   try {

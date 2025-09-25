@@ -11,8 +11,9 @@ let db;
 
 export async function connectToServer() {
   await client.connect();
-  db = client.db("test"); // you can rename this if you like
-  console.log("✅ Connected to MongoDB");
+  const dbName = process.env.DB_NAME || "test";
+  db = client.db(dbName);
+  console.log(`✅ Connected to MongoDB (db: ${dbName})`);
 }
 
 export function getDb() {
@@ -20,3 +21,5 @@ export function getDb() {
   return db;
 }
 
+
+const dbName = process.env.DB_NAME || "test"; db = client.db(insy7314_ice);
