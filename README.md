@@ -97,8 +97,7 @@ keys/ # certificate.pem, privatekey.pem (self-signed)
 .env # local secrets (gitignored)
 package.json
 
-yaml
-Copy code
+
 
 ---
 
@@ -109,8 +108,7 @@ MONGODB_URI="mongodb+srv://<user>:<pass>@<cluster>.mongodb.net/?retryWrites=true
 DB_NAME="insy7314_ice"
 JWT_SECRET="fe189d9140f60009c10309e1de8a0b...anything-long-and-random"
 
-yaml
-Copy code
+
 
 > `JWT_SECRET` can be any long random string. Keep it private.
 
@@ -123,65 +121,56 @@ npm install
 npm run start
 You should see:
 
-pgsql
-Copy code
+
 Connected to MongoDB
 HTTPS server on https://localhost:3000
 The server uses HTTPS with a self-signed cert. Use -k in curl (or accept the cert in the browser).
 
 Quick Tests (Windows CMD)
 1) Health
-cmd
-Copy code
+
 curl -k https://localhost:3000/health
 2) Sign up (gets a token)
-cmd
-Copy code
+
+
 curl -k -X POST https://localhost:3000/api/users/signup ^
   -H "Content-Type: application/json" ^
   -d "{\"email\":\"test1@example.com\",\"password\":\"Passw0rd!\"}"
 Response:
 
-json
-Copy code
+
 {"token":"<JWT_TOKEN_HERE>"}
 3) (Optional) Login again to get a fresh token
-cmd
-Copy code
+
 curl -k -X POST https://localhost:3000/api/users/login ^
   -H "Content-Type: application/json" ^
   -d "{\"email\":\"test1@example.com\",\"password\":\"Passw0rd!\"}"
 4) Use the token for protected routes
 Save token in CMD:
 
-cmd
-Copy code
+
 set TOKEN=<paste the JWT from signup/login>
 Create a post (protected)
-cmd
-Copy code
+
 curl -k -X POST https://localhost:3000/api/posts ^
   -H "Authorization: Bearer %TOKEN%" ^
   -H "Content-Type: application/json" ^
   -d "{\"title\":\"Hello\",\"content\":\"First post\"}"
 List posts (public)
-cmd
-Copy code
+
 curl -k https://localhost:3000/api/posts
 Get single post
-cmd
-Copy code
+
+
 curl -k https://localhost:3000/api/posts/<POST_ID>
 Update a post (protected)
-cmd
-Copy code
+
 curl -k -X PUT https://localhost:3000/api/posts/<POST_ID> ^
   -H "Authorization: Bearer %TOKEN%" ^
   -H "Content-Type: application/json" ^
   -d "{\"title\":\"Updated\",\"content\":\"Updated content\"}"
 Delete a post (protected)
-cmd
-Copy code
+
 curl -k -X DELETE https://localhost:3000/api/posts/<POST_ID> ^
   -H "Authorization: Bearer %TOKEN%"
 
