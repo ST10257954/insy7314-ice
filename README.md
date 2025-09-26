@@ -83,24 +83,6 @@ lab-guide/
 This part adds **routing** and **JWT-based authentication** to the backend from ICE 1.
 
 
-
-## Project Structure (relevant)
-lab-guide/
-backend/
-db/conn.mjs # Mongo connection & getDb()
-middleware/auth.mjs # JWT verification (requireAuth)
-routes/
-user.mjs # /api/users (signup, login)
-post.mjs # /api/posts (CRUD; protected where needed)
-server.mjs # Express app + HTTPS + route mounting
-keys/ # certificate.pem, privatekey.pem (self-signed)
-.env # local secrets (gitignored)
-package.json
-
-
-
----
-
 ## Environment (.env)
 Create `lab-guide/backend/.env` with your values:
 
@@ -174,3 +156,114 @@ Delete a post (protected)
 curl -k -X DELETE https://localhost:3000/api/posts/<POST_ID> ^
   -H "Authorization: Bearer %TOKEN%"
 
+# INSY7314 – ICE Task 4 (CSP + Docker for Pulsevote API)
+
+This part adds **security hardening** (Helmet/CSP, CORS, rate-limiting, logging) and **containerization with Docker** to the Pulsevote API.
+
+
+## Environment (.env)
+
+Create/update `pulsevote/api/.env`:
+
+
+MONGODB_URI="mongodb+srv://<user>:<pass>@<cluster>/?retryWrites=true&w=majority&appName=<App>"
+DB_NAME="pulsevote"
+
+# Auth
+JWT_SECRET="a-very-long-random-string"
+
+# Server
+PORT=3000
+ALLOWED_ORIGIN="https://localhost:5173"   # your frontend origin for CORS
+
+# Rate limit (example: 60 req/min)
+RATE_WINDOW_MS=60000
+RATE_MAX=60
+
+
+> Keep `.env`, `keys/`, `*.pem`, and `node_modules/` out of git via `.gitignore`.
+
+---
+
+## Run locally (Node)
+
+
+cd pulsevote/api
+npm install
+npm run start      
+
+
+You should see:
+
+
+Connected to MongoDB
+HTTPS server on https://localhost:3000
+
+
+---
+
+## Quick Checks (Windows CMD)
+
+**Health**
+
+
+curl -k https://localhost:3000/health
+
+
+**Security headers (CSP, etc.)**
+
+
+curl -kI https://localhost:3000/health
+
+
+**Rate-limit (expect 429 after bursts)**
+
+
+FOR /L %i IN (1,1,80) DO curl -sk https://localhost:3000/health >NUL
+
+
+---
+
+## Run with Docker
+
+### 1) Build image
+
+
+cd pulsevote/api
+docker build -t pulsevote-api .
+
+
+### 2) Run container (mount certs + pass env)
+
+
+# Windows (cmd)
+docker run --rm -p 3000:3000 ^
+  --env-file .env ^
+  -v %cd%/keys:/app/keys:ro ^
+  pulsevote-api
+
+
+*(macOS/Linux: replace `%cd%` with `$(pwd)`)*
+
+### (Optional) docker-compose
+
+
+# pulsevote/api/docker-compose.yml
+services:
+  api:
+    build: .
+    ports: ["3000:3000"]
+    env_file: .env
+    volumes:
+      - ./keys:/app/keys:ro
+
+
+Run:
+
+
+docker compose up --build
+
+
+---
+
+This completes **ICE Task 4: Adding CSP → Dockerizing the API**.
